@@ -7,6 +7,8 @@ const activityKey = "genai-passport-study-activity";
 const lessonProgressKey = "genai-passport-lesson-progress";
 const readinessTarget = 80;
 const defaultSettings = { dailyGoal: 10, examSize: 20 };
+const studyAppName = "生成AIリテラシー学習室";
+const maxActivityCount = 10000;
 const difficultyLabels = { easy: "基礎", normal: "標準", hard: "応用" };
 const confidenceLabels = { high: "確認済み", medium: "要再確認" };
 let examTimerId = null;
@@ -278,7 +280,9 @@ function formatReviewDate(isoDate) {
 
 function recordActivity(count = 1) {
   const key = getLocalDateKey();
-  state.activity[key] = (Number(state.activity[key]) || 0) + count;
+  const current = Math.max(0, Number(state.activity[key]) || 0);
+  const increment = Number.isFinite(count) ? Math.max(0, Math.trunc(count)) : 0;
+  state.activity[key] = Math.min(maxActivityCount, current + increment);
   localStorage.setItem(activityKey, JSON.stringify(state.activity));
 }
 
@@ -493,23 +497,28 @@ function formatDuration(seconds) {
 }
 
 function renderExamHistory() {
+  elements.examHistory.replaceChildren();
   if (!state.examHistory.length) {
-    elements.examHistory.innerHTML = '<p class="empty-history">まだ模試結果はありません。20問で操作に慣れた後、60問形式へ進みます。</p>';
+    const empty = document.createElement("p");
+    empty.className = "empty-history";
+    empty.textContent = "まだ模試結果はありません。20問で操作に慣れた後、60問形式へ進みます。";
+    elements.examHistory.appendChild(empty);
     return;
   }
 
-  elements.examHistory.innerHTML = state.examHistory.slice(0, 5).map((result) => {
+  state.examHistory.slice(0, 5).forEach((result) => {
     const date = new Date(result.date);
     const dateText = Number.isNaN(date.getTime()) ? "日時不明" : date.toLocaleString("ja-JP", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" });
-    return `
-      <div class="exam-history-row">
-        <span>${dateText}</span>
-        <span>${result.total}問</span>
-        <strong>${result.score}/${result.total}・${result.percent}%</strong>
-        <span>${formatDuration(result.durationSeconds)}</span>
-      </div>
-    `;
-  }).join("");
+    const row = document.createElement("div");
+    row.className = "exam-history-row";
+    const values = [dateText, `${result.total}問`, `${result.score}/${result.total}・${result.percent}%`, formatDuration(result.durationSeconds)];
+    values.forEach((value, index) => {
+      const cell = document.createElement(index === 2 ? "strong" : "span");
+      cell.textContent = value;
+      row.appendChild(cell);
+    });
+    elements.examHistory.appendChild(row);
+  });
 }
 
 function renderCategories() {
@@ -893,7 +902,7 @@ function setMode(mode) {
 
 function exportStudyData() {
   const payload = {
-    app: "生成AIリテラシー学習室",
+    app: studyAppName,
     version: 3,
     exportedAt: new Date().toISOString(),
     progress: state.progress,
@@ -911,33 +920,153 @@ function exportStudyData() {
   URL.revokeObjectURL(url);
 }
 
+const supportedImportVersion = 3;
+const maxImportFileBytes = 1024 * 1024;
+const maxProgressEntries = 500;
+const maxExamHistoryEntries = 100;
+const importedExamHistoryEntries = 20;
+const maxWrongIds = 60;
+const maxActivityEntries = 3660;
+const maxLessonProgressEntries = 100;
+const validExamSizes = new Set([20, 60]);
+const validAnsweredInValues = new Set(["exam", "exam-unanswered"]);
+const validConfidenceRatings = new Set(["uncertain", "understood"]);
+const maxExamDurationSeconds = 24 * 60 * 60;
+
+function isRecordObject(value) {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function normalizeIsoDateTime(value) {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d{1,3})?(?:Z|[+-](?:[01]\d|2[0-3]):[0-5]\d)$/.test(value)) return null;
+  if (!isValidDateKey(value.slice(0, 10))) return null;
+  const time = new Date(value).getTime();
+  return Number.isFinite(time) ? new Date(time).toISOString() : null;
+}
+
+function isValidDateKey(value) {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const parsed = new Date(`${value}T00:00:00.000Z`);
+  return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
+}
+
+function normalizeInteger(value, minimum, maximum, fallback = null) {
+  return Number.isInteger(value) && value >= minimum && value <= maximum ? value : fallback;
+}
+
+function normalizeProgressRecord(record, question) {
+  if (!isRecordObject(record)) return null;
+  const normalized = {};
+  const selected = normalizeInteger(record.selected, 0, question.choices.length - 1);
+  if (selected !== null) normalized.selected = selected;
+  if (typeof record.lastCorrect === "boolean") normalized.lastCorrect = record.lastCorrect;
+  if (typeof record.needsReview === "boolean") normalized.needsReview = record.needsReview;
+  if (typeof record.bookmarked === "boolean") normalized.bookmarked = record.bookmarked;
+
+  ["reviewAt", "answeredAt", "bookmarkedAt", "ratedAt"].forEach((field) => {
+    if (field === "reviewAt" && record[field] === null) {
+      normalized[field] = null;
+      return;
+    }
+    const date = normalizeIsoDateTime(record[field]);
+    if (date) normalized[field] = date;
+  });
+  if (validAnsweredInValues.has(record.answeredIn)) normalized.answeredIn = record.answeredIn;
+  if (validConfidenceRatings.has(record.confidenceRating)) normalized.confidenceRating = record.confidenceRating;
+  return Object.keys(normalized).length ? normalized : null;
+}
+
+function normalizeExamResult(item, validIds) {
+  if (!isRecordObject(item)) return null;
+  const id = normalizeIsoDateTime(item.id);
+  const date = normalizeIsoDateTime(item.date);
+  const total = validExamSizes.has(item.total) ? item.total : null;
+  const score = total === null ? null : normalizeInteger(item.score, 0, total);
+  if (!id || !date || total === null || score === null || !Array.isArray(item.wrongIds)) return null;
+  if (item.wrongIds.length > maxWrongIds) throw new Error("模試履歴の問題IDが多すぎます。");
+
+  const wrongIds = [...new Set(item.wrongIds.filter((wrongId) => typeof wrongId === "string" && validIds.has(wrongId)))].slice(0, total);
+  return {
+    id,
+    date,
+    score,
+    total,
+    percent: Math.round((score / total) * 100),
+    durationSeconds: normalizeInteger(item.durationSeconds, 0, maxExamDurationSeconds, 0),
+    unanswered: normalizeInteger(item.unanswered, 0, total, 0),
+    wrongIds
+  };
+}
+
+function assertImportCollectionSizes(payload) {
+  if (Object.keys(payload.progress).length > maxProgressEntries) throw new Error("学習進捗の件数が多すぎます。");
+  if (payload.examHistory.length > maxExamHistoryEntries) throw new Error("模試履歴の件数が多すぎます。");
+  if (Object.keys(payload.activity).length > maxActivityEntries) throw new Error("学習日数の件数が多すぎます。");
+  if (Object.keys(payload.lessonProgress).length > maxLessonProgressEntries) throw new Error("教材進捗の件数が多すぎます。");
+}
+
 function sanitizeImportedData(payload) {
-  if (!payload || typeof payload !== "object" || typeof payload.progress !== "object") {
+  if (
+    !isRecordObject(payload) ||
+    payload.app !== studyAppName ||
+    payload.version !== supportedImportVersion ||
+    !isRecordObject(payload.progress) ||
+    !isRecordObject(payload.settings) ||
+    !Array.isArray(payload.examHistory) ||
+    !isRecordObject(payload.activity) ||
+    !isRecordObject(payload.lessonProgress)
+  ) {
     throw new Error("学習データの形式ではありません。");
   }
-  const validIds = new Set(questions.map((question) => question.id));
-  const progress = Object.fromEntries(Object.entries(payload.progress).filter(([id, record]) => {
-    return validIds.has(id) && record && typeof record === "object";
-  }));
-  const dailyGoal = Math.min(50, Math.max(5, Number(payload.settings?.dailyGoal) || 10));
-  const examSize = Number(payload.settings?.examSize) === 60 ? 60 : 20;
-  const examHistory = Array.isArray(payload.examHistory)
-    ? payload.examHistory.filter((item) => item && Number.isFinite(Number(item.score)) && Number.isFinite(Number(item.total))).slice(0, 20)
-    : [];
-  const activity = payload.activity && typeof payload.activity === "object"
-    ? Object.fromEntries(Object.entries(payload.activity).filter(([date, count]) => /^\d{4}-\d{2}-\d{2}$/.test(date) && Number(count) > 0))
-    : {};
+  if (payload.exportedAt !== undefined && !normalizeIsoDateTime(payload.exportedAt)) {
+    throw new Error("学習データの日時が不正です。");
+  }
+  assertImportCollectionSizes(payload);
+
+  const questionById = new Map(questions.map((question) => [question.id, question]));
+  const validIds = new Set(questionById.keys());
+  const progress = {};
+  Object.entries(payload.progress).forEach(([id, record]) => {
+    const question = questionById.get(id);
+    if (!question) return;
+    const normalized = normalizeProgressRecord(record, question);
+    if (normalized) progress[id] = normalized;
+  });
+
+  const requestedDailyGoal = payload.settings.dailyGoal;
+  const dailyGoal = Number.isInteger(requestedDailyGoal)
+    ? Math.min(50, Math.max(5, requestedDailyGoal))
+    : defaultSettings.dailyGoal;
+  const examSize = validExamSizes.has(payload.settings.examSize) ? payload.settings.examSize : defaultSettings.examSize;
+  const examHistory = payload.examHistory
+    .slice(0, importedExamHistoryEntries)
+    .map((item) => normalizeExamResult(item, validIds))
+    .filter(Boolean);
+  const activity = {};
+  Object.entries(payload.activity).forEach(([date, count]) => {
+    if (isValidDateKey(date) && Number.isInteger(count) && count > 0) {
+      activity[date] = Math.min(count, maxActivityCount);
+    }
+  });
   const validLessonCategories = new Set(lessons.map((lesson) => lesson.category));
-  const lessonProgress = payload.lessonProgress && typeof payload.lessonProgress === "object"
-    ? Object.fromEntries(Object.entries(payload.lessonProgress).filter(([category, record]) => {
-        return validLessonCategories.has(category) && record && !Number.isNaN(new Date(record.completedAt).getTime());
-      }))
-    : {};
+  const lessonProgress = {};
+  Object.entries(payload.lessonProgress).forEach(([category, record]) => {
+    const completedAt = isRecordObject(record) && normalizeIsoDateTime(record.completedAt);
+    if (validLessonCategories.has(category) && completedAt) lessonProgress[category] = { completedAt };
+  });
   return { progress, settings: { dailyGoal, examSize }, examHistory, activity, lessonProgress };
 }
 
 async function importStudyData(file) {
-  const payload = JSON.parse(await file.text());
+  if (!file || !Number.isFinite(file.size) || file.size < 0 || file.size > maxImportFileBytes || typeof file.text !== "function") {
+    throw new Error("学習データは1MiB以下のJSONファイルを選択してください。");
+  }
+  let payload;
+  try {
+    payload = JSON.parse(await file.text());
+  } catch {
+    throw new Error("JSONファイルを読み取れませんでした。");
+  }
   const imported = sanitizeImportedData(payload);
   state.progress = imported.progress;
   state.settings = imported.settings;
@@ -1184,3 +1313,7 @@ state.settings.dailyGoal = Math.min(50, Math.max(5, Number(state.settings.dailyG
 state.settings.examSize = Number(state.settings.examSize) === 60 ? 60 : 20;
 elements.examSizeSelect.value = String(state.settings.examSize);
 render();
+
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = { sanitizeImportedData, importStudyData, renderExamHistory, recordActivity, state, elements, questions };
+}
