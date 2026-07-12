@@ -1,0 +1,51 @@
+[
+  {
+    "id": "guga-syllabus-2026",
+    "title": "GUGA 生成AIパスポート公式シラバス",
+    "url": "https://guga.or.jp/assets/syllabus.pdf",
+    "role": "2026年2月試験より適用される出題範囲",
+    "checkedAt": "2026-07-11",
+    "expectedEtag": "\"2ce19-64c018a216622\""
+  },
+  {
+    "id": "guga-exam",
+    "title": "GUGA 生成AIパスポート試験概要",
+    "url": "https://guga.or.jp/generativeaiexam/",
+    "role": "60問・60分などの試験形式",
+    "checkedAt": "2026-07-11",
+    "requiredText": ["試験時間", "60分間", "問題数", "60問"]
+  },
+  {
+    "id": "ppc-generative-ai",
+    "title": "個人情報保護委員会 生成AIサービスの利用に関する注意喚起",
+    "url": "https://www.ppc.go.jp/news/careful_information/230602_AI_utilize_alert/",
+    "role": "個人情報の入力・取扱い",
+    "checkedAt": "2026-07-11",
+    "requiredText": ["生成AIサービスの利用に関する注意喚起"]
+  },
+  {
+    "id": "bunka-ai-copyright",
+    "title": "文化庁 AIと著作権について",
+    "url": "https://www.bunka.go.jp/seisaku/chosakuken/aiandcopyright.html",
+    "role": "AI開発・生成・利用と著作権",
+    "checkedAt": "2026-07-11",
+    "requiredText": ["AIと著作権", "AIと著作権に関する考え方について"]
+  },
+  {
+    "id": "meti-ai-guideline",
+    "title": "経済産業省 AI事業者ガイドライン",
+    "url": "https://www.meti.go.jp/shingikai/mono_info_service/ai_shakai_jisso/",
+    "role": "AIガバナンスと事業者の行動指針",
+    "checkedAt": "2026-07-11",
+    "acceptedStatuses": [403],
+    "note": "経済産業省サイトは自動取得を403で拒否する場合があるため、ブラウザで手動確認する"
+  },
+  {
+    "id": "cao-ai-act",
+    "title": "内閣府 AI法",
+    "url": "https://www8.cao.go.jp/cstp/ai/ai_act/ai_act.html",
+    "role": "AI法の目的・基本構造・施行状況",
+    "checkedAt": "2026-07-11",
+    "requiredText": ["人工知能関連技術の研究開発及び活用の推進に関する法律", "全面施行"]
+  }
+]

@@ -1,0 +1,10 @@
+{
+  "name": "genai-passport-study-drill",
+  "version": "1.0.0",
+  "private": true,
+  "description": "生成AIパスポートの非公式学習サイト",
+  "scripts": {
+    "test": "node scripts/validate-content.js",
+    "check:sources": "node scripts/check-sources.mjs"
+  }
+}

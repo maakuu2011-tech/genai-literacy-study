@@ -1,0 +1,72 @@
+name: Validate and deploy study site
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "15 22 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm test
+      - name: Check primary sources
+        id: source_check
+        continue-on-error: ${{ github.event_name == 'schedule' }}
+        run: npm run check:sources
+      - name: Open maintenance issue when a source changes
+        if: github.event_name == 'schedule' && steps.source_check.outcome == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = "一次資料の変更を検知しました";
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: "open"
+            });
+            if (!issues.some(issue => issue.title === title)) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body: "週次チェックで出典の内容変更または到達エラーを検知しました。Actionsのログを確認し、問題・解説・sources.jsonの確認値を更新してください。"
+              });
+            }
+      - name: Fail scheduled check after notification
+        if: github.event_name == 'schedule' && steps.source_check.outcome == 'failure'
+        run: exit 1
+
+  deploy:
+    if: github.event_name == 'push'
+    needs: validate
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

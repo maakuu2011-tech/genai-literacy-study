@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="生成AIパスポートの2026年シラバスを学べる、非公式の無料学習ドリル。14章の教材、134問、復習、60問模試、進捗管理に対応。" />
+    <meta name="theme-color" content="#16615a" />
+    <title>生成AIリテラシー学習室 | 生成AIパスポート試験対策</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">Unofficial Study Tool</p>
+        <div class="site-identity">
+          <h1>生成AIリテラシー学習室</h1>
+          <p>生成AIパスポート試験対策・非公式</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="studyGuideButton" type="button">学習ガイド</button>
+        <button id="exportButton" type="button" title="学習データを書き出す">書き出し</button>
+        <label class="import-button" title="学習データを復元する">
+          復元
+          <input id="importInput" type="file" accept="application/json,.json" />
+        </label>
+        <button class="icon-button" id="resetProgressButton" type="button" title="進捗をリセット">↺</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <aside class="sidebar" aria-label="学習メニュー">
+        <section class="progress-panel">
+          <h2>進捗</h2>
+          <div class="progress-ring" aria-label="正答率">
+            <span id="accuracyText">0%</span>
+          </div>
+          <dl class="stats-grid">
+            <div>
+              <dt>回答</dt>
+              <dd id="answeredCount">0</dd>
+            </div>
+            <div>
+              <dt>正解</dt>
+              <dd id="correctCount">0</dd>
+            </div>
+            <div>
+              <dt>復習</dt>
+              <dd id="reviewCount">0</dd>
+            </div>
+          </dl>
+          <div class="insight-box" id="insightBox"></div>
+        </section>
+
+        <section>
+          <h2>カテゴリ</h2>
+          <div class="category-list" id="categoryList"></div>
+        </section>
+
+        <section>
+          <h2>カテゴリ要点</h2>
+          <p class="category-note" id="categoryNote"></p>
+        </section>
+
+        <section>
+          <h2>カテゴリ成績</h2>
+          <div class="category-stats" id="categoryStats"></div>
+        </section>
+
+        <section>
+          <h2>用語集</h2>
+          <div class="glossary-list" id="glossaryList"></div>
+        </section>
+      </aside>
+
+      <section class="study-area">
+        <section class="study-dashboard" aria-labelledby="todayTitle">
+          <div class="dashboard-heading">
+            <div>
+              <p class="eyebrow">Study plan</p>
+              <h2 id="todayTitle">今日の学習</h2>
+            </div>
+            <strong id="readinessBadge" class="readiness-badge">準備中</strong>
+          </div>
+          <div class="dashboard-grid">
+            <div class="daily-goal">
+              <div class="metric-row">
+                <span>今日の回答</span>
+                <strong id="dailyProgressText">0 / 10問</strong>
+              </div>
+              <progress id="dailyProgress" max="10" value="0">0%</progress>
+              <div class="goal-controls">
+                <label>
+                  目標
+                  <input id="dailyGoalInput" type="number" min="5" max="50" step="5" value="10" />
+                  問
+                </label>
+                <button id="startDailyButton" type="button">未回答から始める</button>
+              </div>
+            </div>
+            <dl class="readiness-metrics">
+              <div>
+                <dt>学習範囲</dt>
+                <dd id="coverageText">0%</dd>
+              </div>
+              <div>
+                <dt>総合正答率</dt>
+                <dd id="readinessAccuracyText">0%</dd>
+              </div>
+              <div>
+                <dt>連続学習</dt>
+                <dd id="streakText">0日</dd>
+              </div>
+              <div>
+                <dt>教材読了</dt>
+                <dd id="lessonProgressText">0/14</dd>
+              </div>
+            </dl>
+          </div>
+          <div class="next-action-row">
+            <p id="nextActionText" class="next-action"></p>
+            <button id="continueLessonButton" type="button">教材を続ける</button>
+          </div>
+        </section>
+
+        <div class="toolbar" aria-label="問題操作">
+          <div class="segmented-control">
+            <button data-mode="lesson" type="button">教材</button>
+            <button class="active" data-mode="all" type="button">学習</button>
+            <button data-mode="new" type="button">未回答</button>
+            <button data-mode="review" type="button">復習</button>
+            <button data-mode="bookmarked" type="button">保存</button>
+            <button data-mode="weak" type="button">弱点</button>
+            <button data-mode="exam" type="button">模擬試験</button>
+          </div>
+          <div class="toolbar-actions" id="questionFilters">
+            <label class="filter-field">
+              <span>難易度</span>
+              <select id="difficultyFilter">
+                <option value="all">すべて</option>
+                <option value="easy">基礎</option>
+                <option value="normal">標準</option>
+                <option value="hard">応用</option>
+              </select>
+            </label>
+            <label class="search-field">
+              <span>検索</span>
+              <input id="searchInput" type="search" placeholder="用語・カテゴリ・問題文" />
+            </label>
+            <button id="shuffleButton" type="button">シャッフル</button>
+          </div>
+        </div>
+
+        <article class="lesson-panel" id="lessonPanel" hidden>
+          <div class="lesson-heading">
+            <div class="question-meta">
+              <span id="lessonNumber">1 / 14</span>
+              <span id="lessonChapter">第1章</span>
+              <span id="lessonCategory">AIの基礎</span>
+            </div>
+            <div class="lesson-nav">
+              <button id="prevLessonButton" type="button" aria-label="前の教材">←</button>
+              <button id="nextLessonButton" type="button" aria-label="次の教材">→</button>
+            </div>
+          </div>
+          <h2 id="lessonTitle"></h2>
+          <p class="lesson-lead" id="lessonLead"></p>
+          <div class="lesson-sections" id="lessonSections"></div>
+          <div class="lesson-review-grid">
+            <section class="lesson-key-points">
+              <h3>ここを覚える</h3>
+              <ul id="lessonKeyPoints"></ul>
+            </section>
+            <section class="lesson-traps">
+              <h3>よくある引っかけ</h3>
+              <ul id="lessonTraps"></ul>
+            </section>
+          </div>
+          <div class="lesson-footer">
+            <div class="lesson-sources" id="lessonSources"></div>
+            <div class="lesson-footer-actions">
+              <button id="markLessonCompleteButton" type="button">読了にする</button>
+              <button id="startLessonQuestionsButton" type="button">この章の問題を解く</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="question-card" id="questionCard">
+          <div class="question-meta">
+            <span id="questionNumber">1 / 1</span>
+            <span id="questionCategory">AIの基礎</span>
+            <span id="questionDifficulty">easy</span>
+            <span id="questionConfidence">high</span>
+          </div>
+          <div class="question-tools">
+            <button id="bookmarkButton" type="button">保存する</button>
+          </div>
+
+          <section class="exam-panel" id="examPanel" hidden>
+            <div>
+              <p class="eyebrow">Mock Exam</p>
+              <h2 id="examTitle">模擬試験</h2>
+              <p id="examStatus">ランダム20問で実力確認します。</p>
+            </div>
+            <div class="exam-actions">
+              <span id="examTimer" class="exam-timer">20:00</span>
+              <label>
+                問題数
+                <select id="examSizeSelect">
+                  <option value="20">20問クイック</option>
+                  <option value="60">60問・本番形式</option>
+                </select>
+              </label>
+              <button id="submitExamButton" type="button">採点する</button>
+              <button id="restartExamButton" type="button">新しい模試</button>
+            </div>
+          </section>
+
+          <section class="study-note" id="studyNote">
+            <p class="eyebrow">まず読む</p>
+            <h2 id="studyTitle"></h2>
+            <p id="studyText"></p>
+            <div class="study-note-actions">
+              <button id="openLessonButton" type="button">章の教材を読む</button>
+              <button id="revealQuestionButton" type="button">問題に進む</button>
+            </div>
+          </section>
+
+          <div class="question-body" id="questionBody" hidden>
+            <h2 id="questionText"></h2>
+            <div class="choices" id="choices"></div>
+          </div>
+
+          <div class="result" id="result" hidden></div>
+
+          <div class="actions">
+            <button id="prevButton" type="button">前へ</button>
+            <button id="retryButton" type="button">もう一度解く</button>
+            <button id="nextButton" type="button">次へ</button>
+          </div>
+        </article>
+
+        <section class="exam-history-panel">
+          <div>
+            <p class="eyebrow">Exam history</p>
+            <h2>模試履歴</h2>
+          </div>
+          <div id="examHistory" class="exam-history"></div>
+        </section>
+
+        <section class="source-panel">
+          <h2>根拠資料と更新基準</h2>
+          <p>
+            2026年2月試験より適用のGUGA公式シラバスを軸にした非公式教材です。問題はオリジナルで、
+            本試験問題や市販問題集の転載ではありません。法制度・サービス仕様は一次資料で再確認してください。
+          </p>
+          <div class="source-links">
+            <a href="https://guga.or.jp/assets/syllabus.pdf" target="_blank" rel="noreferrer">GUGA公式シラバス</a>
+            <a href="https://guga.or.jp/generativeaiexam/" target="_blank" rel="noreferrer">公式試験概要</a>
+            <a href="https://www.ppc.go.jp/news/careful_information/230602_AI_utilize_alert/" target="_blank" rel="noreferrer">個人情報保護委員会</a>
+            <a href="https://www.bunka.go.jp/seisaku/chosakuken/aiandcopyright.html" target="_blank" rel="noreferrer">文化庁 AIと著作権</a>
+            <a href="https://www.meti.go.jp/shingikai/mono_info_service/ai_shakai_jisso/" target="_blank" rel="noreferrer">AI事業者ガイドライン</a>
+            <a href="https://www8.cao.go.jp/cstp/ai/ai_act/ai_act.html" target="_blank" rel="noreferrer">内閣府 AI法</a>
+          </div>
+          <small>内容確認日: 2026年7月11日 / 学習目標80%は当サイト独自基準です。</small>
+        </section>
+      </section>
+    </main>
+
+    <dialog id="studyGuideDialog" class="study-guide-dialog" aria-labelledby="studyGuideTitle">
+      <div class="guide-header">
+        <div>
+          <p class="eyebrow">Study guide</p>
+          <h2 id="studyGuideTitle">合格までの学習順序</h2>
+        </div>
+        <button class="icon-button" id="closeStudyGuideButton" type="button" aria-label="学習ガイドを閉じる">×</button>
+      </div>
+      <p class="guide-intro">
+        最初から暗記しようとせず、要点を読んで問題を解き、間違いだけを繰り返します。まず全範囲を一周することを優先してください。
+      </p>
+      <ol class="guide-steps">
+        <li>
+          <div><strong>基礎を固める</strong><span>AIの基礎 → AIの歴史 → 機械学習 → ディープラーニング</span></div>
+          <button type="button" data-guide-category="AIの基礎">ここから始める</button>
+        </li>
+        <li>
+          <div><strong>生成AIの仕組みを理解する</strong><span>生成AI → 生成モデル → RAG・検索拡張生成 → AIエージェント</span></div>
+          <button type="button" data-guide-category="生成AI">ここから始める</button>
+        </li>
+        <li>
+          <div><strong>使い方を覚える</strong><span>プロンプト → ビジネス活用。目的・条件・出力形式を整理する</span></div>
+          <button type="button" data-guide-category="プロンプト">ここから始める</button>
+        </li>
+        <li>
+          <div><strong>得点源のリスク分野を仕上げる</strong><span>リスク・倫理 → 法律・個人情報 → セキュリティ → 情報リテラシー</span></div>
+          <button type="button" data-guide-category="リスク・倫理">ここから始める</button>
+        </li>
+        <li>
+          <div><strong>弱点復習から本番形式へ</strong><span>未回答をゼロにし、弱点を解き直した後、60問模試で80%以上を2回目指す</span></div>
+          <button type="button" data-guide-mode="exam">模試を始める</button>
+        </li>
+      </ol>
+      <section class="daily-routine" aria-labelledby="dailyRoutineTitle">
+        <h3 id="dailyRoutineTitle">1日20〜30分の進め方</h3>
+        <p><strong>新規10問</strong> → <strong>間違いの解説を読む</strong> → <strong>復習5問</strong>。週末に20問模試、試験前は60問模試を行います。</p>
+        <p>正解の記号ではなく、「他の選択肢がなぜ違うか」を説明できる状態を目標にします。法律やサービス仕様は出典リンクも確認してください。</p>
+      </section>
+    </dialog>
+
+    <script src="questions.js"></script>
+    <script src="extra-questions.js"></script>
+    <script src="lessons.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
