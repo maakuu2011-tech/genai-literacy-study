@@ -31,7 +31,7 @@ jobs:
       - run: npm run validate:public
       - name: Check primary sources
         id: source_check
-        continue-on-error: ${{ github.event_name == 'schedule' }}
+        continue-on-error: ${{ github.event_name == 'schedule' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
         run: npm run check:sources
       - name: Open maintenance issue when a source changes
         if: github.event_name == 'schedule' && steps.source_check.outcome == 'failure'
