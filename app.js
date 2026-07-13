@@ -55,6 +55,7 @@ const studyNotes = {
   "ファクトチェック": "ファクトチェックは、AIの出力が事実に基づいているか確認する作業です。生成AIはもっともらしい誤情報を出すことがあるため、重要な内容は一次情報や信頼できる資料で照合します。",
   "AIガバナンス": "AIガバナンスは、AIを安全かつ適切に利用するための方針、ルール、責任体制、監査、教育などの仕組みです。企業利用では個人任せにせず、組織として管理する視点が重要です。",
   "オプトアウト": "オプトアウトは、利用者が自分のデータ利用や特定の処理を拒否できる仕組みです。生成AIサービスでは、入力データが学習に使われるかどうかを利用規約や設定で確認することが大切です。",
+  "プライバシー設定": "生成AIサービスのプライバシー設定では、入力内容がモデル改善に使われるか、履歴が保存されるか、法人契約で別条件になるかを確認します。個人情報保護法上の第三者提供オプトアウト制度とは意味が異なる場合があるため、言葉を混同しないことが大切です。",
   "API": "APIは、ソフトウェア同士が機能やデータをやり取りするための接点です。生成AIでは、アプリケーションからAIモデルを呼び出して文章生成や分類などを行うために使われます。",
   "OCR": "OCRは、画像内の文字を認識してテキスト化する技術です。紙の書類や画像PDFをデジタル処理しやすくする技術で、AI活用の前処理としても使われます。",
   "真正性": "真正性は、情報やコンテンツが本物であり、改ざんやなりすましではないことを確認できる性質です。生成AI時代には、画像、音声、動画の出所や作成経緯を確認する重要性が増しています。",
@@ -75,6 +76,7 @@ const studyNotes = {
   "学習データ": "学習データは、AIモデルがパターンを学ぶために使うデータです。量だけでなく、品質、偏り、権利処理、個人情報の有無が重要です。",
   "画像生成AI": "画像生成AIは、テキストや画像などの入力をもとに新しい画像を生成するAIです。著作権、肖像権、商標、誤情報、ディープフェイクのリスクとあわせて理解します。",
   "音声生成AI": "音声生成AIは、テキストや音声データをもとに合成音声を生成するAIです。本人の声に似せたなりすまし、詐欺、同意のない利用に注意が必要です。",
+  "音声と個人情報": "実在人物の音声は、本人を識別できる場合には個人情報に関係します。声紋のように本人認証に使える情報は、個人識別符号として扱われる場合もあります。音声生成AIでは同意、利用目的、なりすましリスク、権利関係をまとめて確認します。",
   "大規模言語モデル": "大規模言語モデルは、大量のテキストデータを用いて学習し、文章の生成、要約、翻訳、分類、対話などを行うモデルです。LLMとも呼ばれ、Transformerを基盤にするものが多いです。",
   "自然言語処理": "自然言語処理は、人間の言葉をコンピュータで扱う技術分野です。形態素解析、翻訳、要約、感情分析、質問応答などが含まれます。",
   "拡散モデル": "拡散モデルは、ノイズから徐々にデータを復元するように学習する生成モデルです。画像生成AIで代表的に使われる方式の一つです。",
@@ -113,6 +115,7 @@ const studyNotes = {
   "生成物の表示": "生成物の表示は、AIで作成したコンテンツであることを明示する対応です。誤認防止や透明性の観点で重要になる場合があります。",
   "同意": "同意は、個人情報や肖像、音声などを特定の目的で利用することに本人が承諾することです。AI利用では何に使うかを明確にする必要があります。",
   "データ最小化": "データ最小化は、目的達成に必要な範囲だけのデータを扱う考え方です。生成AIに不要な個人情報や機密情報を入力しない判断につながります。",
+  "人工知能戦略本部": "人工知能戦略本部は、AI法に基づいて内閣に置かれる組織です。人工知能基本計画の案の作成や、AI関連施策の総合調整を担う点を正式名称とセットで押さえます。",
   "セキュリティポリシー": "セキュリティポリシーは、組織が情報資産を守るための基本方針やルールです。生成AIの利用可否、入力禁止情報、承認手続きなども含めて整備します。"
 };
 
@@ -784,6 +787,27 @@ function showResult(question, selected) {
   const progress = state.progress[question.id];
   const understoodDays = isCorrect ? 7 : 3;
   const scheduleStatus = progress?.needsReview && progress.reviewAt ? formatReviewDate(progress.reviewAt) : "";
+  const choiceDetails = Array.isArray(question.choiceExplanations) ? `
+    <div class="choice-explanations">
+      <h3>選択肢ごとの確認</h3>
+      <ul>
+        ${question.choiceExplanations.map((text, index) => `<li><strong>${String.fromCharCode(65 + index)}.</strong> ${text}</li>`).join("")}
+      </ul>
+    </div>
+  ` : "";
+  const sourceEvidence = Array.isArray(question.sourceRefs) ? `
+    <div class="source-evidence">
+      <h3>根拠メモ</h3>
+      <ul>
+        ${question.sourceRefs.map((sourceRef) => `
+          <li>
+            <a href="${sourceRef.url}" target="_blank" rel="noreferrer">${sourceRef.sourceId}</a>
+            <span>${sourceRef.locator}: ${sourceRef.claim}</span>
+          </li>
+        `).join("")}
+      </ul>
+    </div>
+  ` : "";
   const selfAssessment = state.mode === "exam" ? "" : `
     <div class="self-assessment">
       <p>解説を読んだ今の理解度は？</p>
@@ -802,19 +826,22 @@ function showResult(question, selected) {
       <div><span>正解</span>${correctLabel}</div>
     </div>
     <p>${question.explanation}</p>
+    ${choiceDetails}
     <div class="result-review">
       <h3>この問題の関連ポイント</h3>
       <ul>${relatedPoints.map((point) => `<li>${point}</li>`).join("")}</ul>
       ${trap ? `<p class="trap-note"><strong>引っかけ注意:</strong> ${trap}</p>` : ""}
     </div>
+    ${sourceEvidence}
     ${selfAssessment}
     <small>出典確認: <a href="${sourceUrl}" target="_blank" rel="noreferrer">${question.source}</a></small>
   `;
 }
 
 function getSourceUrl(question) {
+  if (question.sourceRefs?.[0]?.url) return question.sourceRefs[0].url;
   if (question.category === "法律・個人情報") {
-    if (["AI法", "AI戦略本部"].includes(question.keyword)) {
+    if (["AI法", "AI戦略本部", "人工知能戦略本部"].includes(question.keyword)) {
       return "https://www8.cao.go.jp/cstp/ai/ai_act/ai_act.html";
     }
     return question.keyword.includes("著作")

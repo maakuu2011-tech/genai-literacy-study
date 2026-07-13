@@ -864,18 +864,37 @@ dd {
   padding-top: 12px;
 }
 
-.result-review h3 {
+.choice-explanations,
+.source-evidence {
+  margin-top: 14px;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+
+.result-review h3,
+.choice-explanations h3,
+.source-evidence h3 {
   margin: 0 0 8px;
   font-size: 0.95rem;
 }
 
-.result-review ul {
+.result-review ul,
+.choice-explanations ul,
+.source-evidence ul {
   margin: 0 0 12px;
   padding-left: 20px;
 }
 
-.result-review li {
+.result-review li,
+.choice-explanations li,
+.source-evidence li {
   margin-bottom: 5px;
+}
+
+.source-evidence span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.9rem;
 }
 
 .trap-note {

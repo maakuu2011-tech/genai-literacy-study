@@ -5,6 +5,7 @@ const root = path.resolve(__dirname, "..");
 global.window = {};
 require(path.join(root, "questions.js"));
 require(path.join(root, "extra-questions.js"));
+require(path.join(root, "content-overrides.js"));
 require(path.join(root, "lessons.js"));
 
 const questions = window.GENAI_PASSPORT_QUESTIONS;
@@ -14,6 +15,27 @@ const app = fs.readFileSync(path.join(root, "app.js"), "utf8");
 const sources = JSON.parse(fs.readFileSync(path.join(root, "sources.json"), "utf8"));
 const errors = [];
 const fail = (message) => errors.push(message);
+const sourceById = new Map(sources.map((source) => [source.id, source]));
+const publicMode = process.argv.includes("--public");
+const evidenceRequiredIds = new Set([
+  "law-001",
+  "law-002",
+  "law-003",
+  "law-004",
+  "law-005",
+  "law-006",
+  "law-007",
+  "law-008",
+  "law-009",
+  "law-010",
+  "law-011",
+  "law-012",
+  "law-013",
+  "law-014",
+  "law-015",
+  "law-016",
+  "law-ai-002"
+]);
 
 if (!Array.isArray(questions) || questions.length < 100) fail("問題数は100問以上必要です。");
 
@@ -37,6 +59,26 @@ questions.forEach((question, index) => {
   if (!question.category || !question.keyword || !question.source) fail(`${label}: 分類または出典がありません。`);
   if (!question.explanation || question.explanation.length < 35) fail(`${label}: 解説が短すぎます。`);
   if (new Set(question.choices).size !== 4) fail(`${label}: 同じ選択肢があります。`);
+  if (evidenceRequiredIds.has(question.id)) {
+    if (!Array.isArray(question.choiceExplanations) || question.choiceExplanations.length !== 4 || question.choiceExplanations.some((text) => typeof text !== "string" || text.length < 12)) {
+      fail(`${label}: 選択肢ごとの解説が不足しています。`);
+    }
+    if (!Array.isArray(question.sourceRefs) || question.sourceRefs.length < 1) {
+      fail(`${label}: sourceRefs が不足しています。`);
+    } else {
+      question.sourceRefs.forEach((sourceRef, refIndex) => {
+        const source = sourceById.get(sourceRef.sourceId);
+        if (!source) fail(`${label}: sourceRefs[${refIndex}] の sourceId が sources.json にありません。`);
+        if (source && source.url !== sourceRef.url) fail(`${label}: sourceRefs[${refIndex}] の URL が sources.json と一致しません。`);
+        if (!sourceRef.locator || !sourceRef.claim) fail(`${label}: sourceRefs[${refIndex}] の locator/claim が不足しています。`);
+      });
+    }
+    if (!["pending", "approved", "rejected"].includes(question.reviewStatus)) fail(`${label}: reviewStatus が不正です。`);
+    if (question.reviewStatus === "approved" && !/^\d{4}-\d{2}-\d{2}$/.test(question.reviewedAt || "")) fail(`${label}: reviewedAt が不正です。`);
+    if (publicMode && (question.confidence !== "high" || question.reviewStatus !== "approved")) {
+      fail(`${label}: 公開用検証では high かつ approved が必要です。`);
+    }
+  }
 });
 
 const questionCategories = new Set(questions.map((question) => question.category));

@@ -5,6 +5,7 @@
   "description": "生成AIパスポートの非公式学習サイト",
   "scripts": {
     "test": "node scripts/validate-content.js && node --test tests/*.test.js",
+    "validate:public": "node scripts/validate-content.js --public",
     "check:sources": "node scripts/check-sources.mjs"
   }
 }

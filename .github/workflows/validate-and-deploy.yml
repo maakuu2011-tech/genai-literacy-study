@@ -28,6 +28,7 @@ jobs:
         with:
           node-version: 22
       - run: npm test
+      - run: npm run validate:public
       - name: Check primary sources
         id: source_check
         continue-on-error: ${{ github.event_name == 'schedule' }}

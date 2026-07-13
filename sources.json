@@ -47,5 +47,78 @@
     "role": "AI法の目的・基本構造・施行状況",
     "checkedAt": "2026-07-11",
     "requiredText": ["人工知能関連技術の研究開発及び活用の推進に関する法律", "全面施行"]
+  },
+  {
+    "id": "ppc-guidelines-general",
+    "title": "個人情報保護委員会 個人情報保護法ガイドライン 通則編",
+    "url": "https://www.ppc.go.jp/personalinfo/legal/guidelines_tsusoku/",
+    "role": "個人情報、要配慮個人情報、仮名加工情報、第三者提供、委託、利用目的の確認",
+    "checkedAt": "2026-07-13",
+    "requiredText": ["個人情報の保護に関する法律についてのガイドライン", "通則編"]
+  },
+  {
+    "id": "ppc-guidelines-anonymous",
+    "title": "個人情報保護委員会 個人情報保護法ガイドライン 匿名加工情報編",
+    "url": "https://www.ppc.go.jp/personalinfo/legal/guidelines_anonymous/",
+    "role": "匿名加工情報の定義と加工基準",
+    "checkedAt": "2026-07-13",
+    "requiredText": ["匿名加工情報", "ガイドライン"]
+  },
+  {
+    "id": "ppc-optout",
+    "title": "個人情報保護委員会 オプトアウト届出制度",
+    "url": "https://www.ppc.go.jp/personalinfo/legal/optout/",
+    "role": "個人情報保護法上の第三者提供オプトアウト制度",
+    "checkedAt": "2026-07-13",
+    "requiredText": ["オプトアウト", "届出"]
+  },
+  {
+    "id": "ppc-thirdparty-platform",
+    "title": "個人情報保護委員会 第三者が提供するサービス利用時の注意",
+    "url": "https://www.ppc.go.jp/news/careful_information/use_AP_provided_by_3rdparty/",
+    "role": "外部サービス利用時の個人情報取扱い確認",
+    "checkedAt": "2026-07-13",
+    "requiredText": ["第三者が作成したプラットフォーム", "個人情報"]
+  },
+  {
+    "id": "jpo-trademark-effect",
+    "title": "特許庁 商標権の効力",
+    "url": "https://www.jpo.go.jp/system/trademark/gaiyo/seidogaiyo/shotoha.html",
+    "role": "商標権の基本と登録商標の効力",
+    "checkedAt": "2026-07-13",
+    "acceptedStatuses": [403],
+    "note": "特許庁サイトは自動取得を403で拒否する場合があるため、ブラウザまたは検索結果で手動確認する"
+  },
+  {
+    "id": "courts-portrait-2020",
+    "title": "最高裁判所 肖像等の利用に関する判例",
+    "url": "https://www.courts.go.jp/assets/hanrei/hanrei-pdf-89732.pdf",
+    "role": "肖像等の利用における受忍限度判断",
+    "checkedAt": "2026-07-13",
+    "expectedContentType": "application/pdf"
+  },
+  {
+    "id": "courts-publicity-2012",
+    "title": "最高裁判所 パブリシティ権に関する判例",
+    "url": "https://www.courts.go.jp/assets/hanrei/hanrei-pdf-81957.pdf",
+    "role": "氏名・肖像の顧客吸引力を専ら利用する行為の判断",
+    "checkedAt": "2026-07-13",
+    "expectedContentType": "application/pdf"
+  },
+  {
+    "id": "ppc-voice-faq",
+    "title": "個人情報保護委員会 音声・声紋に関するFAQ",
+    "url": "https://www.ppc.go.jp/all_faq_index/faq1-q1-11/",
+    "role": "音声・声紋と個人情報、個人識別符号の確認",
+    "checkedAt": "2026-07-13",
+    "requiredText": ["音声", "本人を認証"]
+  },
+  {
+    "id": "egov-ai-act",
+    "title": "e-Gov法令検索 人工知能関連技術の研究開発及び活用の推進に関する法律",
+    "url": "https://laws.e-gov.go.jp/law/507AC0000000053",
+    "role": "人工知能戦略本部の正式名称と所掌",
+    "checkedAt": "2026-07-13",
+    "note": "e-Govは初期HTMLに法令本文を含めないため、法令本文はブラウザ表示または検索結果で手動確認する"
   }
 ]
