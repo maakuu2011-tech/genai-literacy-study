@@ -172,6 +172,7 @@ const elements = {
   streakText: document.getElementById("streakText"),
   lessonProgressText: document.getElementById("lessonProgressText"),
   readinessBadge: document.getElementById("readinessBadge"),
+  readinessChecklist: document.getElementById("readinessChecklist"),
   nextActionText: document.getElementById("nextActionText"),
   continueLessonButton: document.getElementById("continueLessonButton"),
   categoryList: document.getElementById("categoryList"),
@@ -475,6 +476,7 @@ function renderDashboard() {
   elements.continueLessonButton.textContent = completedLessons === lessons.length ? "教材を復習" : `次: ${nextUnreadLesson.category}`;
   elements.readinessBadge.textContent = ready ? "受験準備 OK" : "準備中";
   elements.readinessBadge.classList.toggle("ready", ready);
+  renderReadinessChecklist({ completedLessons, coverage, accuracy, latestFullExam, dueReviews });
 
   if (dueReviews > 0) {
     elements.nextActionText.textContent = `次の一手: 今日が復習予定の問題が${dueReviews}問あります。先に記憶を定着させます。`;
@@ -491,6 +493,57 @@ function renderDashboard() {
   } else {
     elements.nextActionText.textContent = "学習範囲・正答率・本番形式模試が目標に到達しています。弱点を維持復習します。";
   }
+}
+
+function renderReadinessChecklist({ completedLessons, coverage, accuracy, latestFullExam, dueReviews }) {
+  const checks = [
+    {
+      done: completedLessons === lessons.length,
+      label: "教材を全章読む",
+      value: `${completedLessons}/${lessons.length}`
+    },
+    {
+      done: coverage >= 90,
+      label: "問題を90%以上解く",
+      value: `${coverage}%`
+    },
+    {
+      done: accuracy >= readinessTarget,
+      label: `総合正答率${readinessTarget}%以上`,
+      value: `${accuracy}%`
+    },
+    {
+      done: latestFullExam?.percent >= readinessTarget,
+      label: `60問模試で${readinessTarget}%以上`,
+      value: latestFullExam ? `${latestFullExam.percent}%` : "未実施"
+    },
+    {
+      done: dueReviews === 0,
+      label: "今日の復習予定を残さない",
+      value: `${dueReviews}問`
+    }
+  ];
+
+  elements.readinessChecklist.replaceChildren();
+  checks.forEach((check) => {
+    const item = document.createElement("div");
+    item.className = `readiness-check ${check.done ? "done" : ""}`;
+
+    const mark = document.createElement("span");
+    mark.className = "readiness-check-mark";
+    mark.textContent = check.done ? "✓" : "!";
+
+    const label = document.createElement("span");
+    label.textContent = check.label;
+
+    const value = document.createElement("strong");
+    value.textContent = check.value;
+
+    item.appendChild(mark);
+    item.appendChild(label);
+    item.appendChild(value);
+    elements.readinessChecklist.appendChild(item);
+  });
 }
 
 function formatDuration(seconds) {
