@@ -8,6 +8,7 @@ require(path.join(root, "extra-questions.js"));
 require(path.join(root, "content-overrides.js"));
 require(path.join(root, "practice-expansion.js"));
 require(path.join(root, "practice-expansion-2.js"));
+require(path.join(root, "daily-questions.js"));
 require(path.join(root, "lessons.js"));
 
 const questions = window.GENAI_PASSPORT_QUESTIONS;
