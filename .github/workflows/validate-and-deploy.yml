@@ -66,6 +66,8 @@ jobs:
           node-version: 22
       - name: Publish one reviewed question
         run: npm run publish:daily
+      - name: Validate published content
+        run: npm test
       - name: Commit daily content when queued
         shell: bash
         run: |
@@ -80,14 +82,16 @@ jobs:
           git push
 
   deploy:
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-    needs: validate
+    if: always() && needs.validate.result == 'success' && (github.event_name != 'schedule' || needs.publish-daily-content.result == 'success')
+    needs: [validate, publish-daily-content]
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
