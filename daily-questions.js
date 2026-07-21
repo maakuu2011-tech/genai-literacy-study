@@ -65,6 +65,39 @@
     ],
     "reviewStatus": "approved",
     "reviewedAt": "2026-07-20"
+  },
+  {
+    "id": "daily-003",
+    "category": "生成モデル",
+    "difficulty": "easy",
+    "confidence": "high",
+    "keyword": "生成モデル",
+    "source": "GUGA公式シラバス 2026年2月試験より引用",
+    "question": "生成モデルの説明として、最も適切なものはどれか。",
+    "choices": [
+      "既存データの件数を数えるだけの仕組み",
+      "入力された文章を必ず事実に変換する仕組み",
+      "学習したパターンをもとに新しい文章や画像などを生成する仕組み",
+      "人間の承認があるまで一切の出力を作れない仕組み"
+    ],
+    "answer": 2,
+    "explanation": "生成モデルは、学習したデータのパターンをもとに、文章、画像、音声、コードなどの新しいコンテンツを生成します。生成物が事実であることや権利上問題ないことを自動で保証するものではありません。",
+    "sourceRefs": [
+      {
+        "sourceId": "guga-syllabus-2026",
+        "url": "https://guga.or.jp/assets/syllabus.pdf",
+        "locator": "生成AI・生成モデル",
+        "claim": "生成モデルの基本的な仕組み"
+      }
+    ],
+    "choiceExplanations": [
+      "件数の集計は生成モデルの本質的な説明ではありません。",
+      "生成モデルは事実性を自動で保証する仕組みではありません。",
+      "正解。学習したパターンをもとに新しいコンテンツを生成します。",
+      "人の承認なしで出力できるサービスもあります。"
+    ],
+    "reviewStatus": "approved",
+    "reviewedAt": "2026-07-21"
   }
 ];
   window.GENAI_PASSPORT_QUESTIONS = [...(window.GENAI_PASSPORT_QUESTIONS || []), ...questions];
