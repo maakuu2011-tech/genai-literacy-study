@@ -238,6 +238,67 @@ h2 {
   padding-left: 12px;
 }
 
+.exam-application-panel {
+  margin-top: 1rem;
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.section-heading-row,
+.application-columns {
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.section-heading-row h2 { margin: 0.15rem 0 0; }
+.text-link, .application-links a { color: var(--accent); font-weight: 700; }
+
+.application-notice {
+  margin: 1rem 0;
+  padding: 0.75rem 0.9rem;
+  border-left: 4px solid var(--accent);
+  background: var(--primary-weak);
+}
+
+.application-facts {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.application-facts div {
+  padding: 0.7rem;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.application-facts span, .application-facts strong { display: block; }
+.application-facts span { color: var(--muted); font-size: 0.78rem; }
+.application-columns { margin-top: 1.25rem; }
+.application-columns > section { flex: 1; min-width: 0; }
+.application-columns h3 { margin: 0 0 0.65rem; font-size: 1rem; }
+.schedule-table-wrap { overflow-x: auto; }
+.schedule-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+.schedule-table th, .schedule-table td { padding: 0.55rem; border: 1px solid var(--line); text-align: left; white-space: nowrap; }
+.schedule-table thead th { color: var(--muted); background: var(--surface); }
+.schedule-table .current-schedule { background: var(--primary-weak); }
+.application-steps, .application-checklist { margin: 0 0 1.15rem; padding-left: 1.35rem; }
+.application-steps li, .application-checklist li { margin: 0.45rem 0; }
+.application-links { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+
+@media (max-width: 900px) {
+  .application-facts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 640px) {
+  .section-heading-row, .application-columns { flex-direction: column; }
+  .application-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
 .readiness-checklist {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
