@@ -98,6 +98,39 @@
     ],
     "reviewStatus": "approved",
     "reviewedAt": "2026-07-21"
+  },
+  {
+    "id": "daily-004",
+    "category": "プロンプト",
+    "difficulty": "normal",
+    "confidence": "high",
+    "keyword": "プロンプトの具体化",
+    "source": "GUGA公式シラバス 2026年2月試験より引用",
+    "question": "生成AIに期待する回答を得やすくするプロンプトとして、最も適切なものはどれか。",
+    "choices": [
+      "目的、前提、出力形式を具体的に示す",
+      "重要な条件をすべて省略して短くする",
+      "一度の回答を必ず正解として採用する",
+      "個人情報をできるだけ多く入力する"
+    ],
+    "answer": 0,
+    "explanation": "目的、対象者、前提条件、制約、出力形式を明示すると、生成AIが回答の方向性を捉えやすくなります。出力は確認し、入力する情報も必要最小限にします。",
+    "sourceRefs": [
+      {
+        "sourceId": "guga-syllabus-2026",
+        "url": "https://guga.or.jp/assets/syllabus.pdf",
+        "locator": "プロンプト",
+        "claim": "生成AIへの指示と出力の確認に関する基礎事項"
+      }
+    ],
+    "choiceExplanations": [
+      "正解。目的や条件、形式を具体化すると回答のずれを減らせます。",
+      "条件の省略は、期待と異なる出力につながることがあります。",
+      "生成AIの出力は検証してから利用します。",
+      "個人情報は必要最小限にし、入力可否を確認します。"
+    ],
+    "reviewStatus": "approved",
+    "reviewedAt": "2026-07-22"
   }
 ];
   window.GENAI_PASSPORT_QUESTIONS = [...(window.GENAI_PASSPORT_QUESTIONS || []), ...questions];
