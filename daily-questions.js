@@ -131,6 +131,39 @@
     ],
     "reviewStatus": "approved",
     "reviewedAt": "2026-07-22"
+  },
+  {
+    "id": "daily-005",
+    "category": "セキュリティ",
+    "difficulty": "normal",
+    "confidence": "high",
+    "keyword": "プロンプトインジェクション",
+    "source": "経済産業省 AI事業者ガイドライン",
+    "question": "プロンプトインジェクションへの対策として、最も適切なものはどれか。",
+    "choices": [
+      "外部入力を常にシステム指示より優先する",
+      "入力内容を信頼し、検証を省略する",
+      "外部入力を不信なデータとして扱い、権限や出力を検証する",
+      "機密情報をプロンプトに含めて判断させる"
+    ],
+    "answer": 2,
+    "explanation": "プロンプトインジェクションは、外部入力によってAIの指示を意図しない方向へ誘導する攻撃です。入力を信頼しすぎず、指示とデータを分離し、ツール権限を最小化し、重要な処理や出力を検証します。",
+    "sourceRefs": [
+      {
+        "sourceId": "meti-ai-guideline",
+        "url": "https://www.meti.go.jp/shingikai/mono_info_service/ai_shakai_jisso/",
+        "locator": "AIの安全性・セキュリティ",
+        "claim": "AIシステムのリスク管理と安全性確保"
+      }
+    ],
+    "choiceExplanations": [
+      "外部入力を無条件に優先すると、攻撃の影響を受けやすくなります。",
+      "外部入力や生成結果は、信頼できるとは限らないため検証が必要です。",
+      "正解。入力、権限、出力をそれぞれ検証し、影響範囲を限定します。",
+      "機密情報の入力は漏えいリスクを高めます。"
+    ],
+    "reviewStatus": "approved",
+    "reviewedAt": "2026-07-23"
   }
 ];
   window.GENAI_PASSPORT_QUESTIONS = [...(window.GENAI_PASSPORT_QUESTIONS || []), ...questions];
