@@ -164,6 +164,39 @@
     ],
     "reviewStatus": "approved",
     "reviewedAt": "2026-07-23"
+  },
+  {
+    "id": "daily-006",
+    "category": "情報リテラシー",
+    "difficulty": "easy",
+    "confidence": "high",
+    "keyword": "ハルシネーション",
+    "source": "GUGA公式シラバス 2026年2月試験より引用",
+    "question": "生成AIのハルシネーションに対する対応として、最も適切なものはどれか。",
+    "choices": [
+      "流暢な文章なら正しいと判断する",
+      "重要な事実や数値を一次資料などで確認する",
+      "AIに自信の有無を聞けば確認は不要である",
+      "誤りを防ぐため出力を一切読まない"
+    ],
+    "answer": 1,
+    "explanation": "ハルシネーションは、生成AIがもっともらしい誤情報を出力する現象です。重要な事実、数値、引用、法令や制度の内容は、信頼できる一次資料や担当者の確認を通して利用します。",
+    "sourceRefs": [
+      {
+        "sourceId": "guga-syllabus-2026",
+        "url": "https://guga.or.jp/assets/syllabus.pdf",
+        "locator": "生成AIのリスク",
+        "claim": "生成AIの出力に含まれる誤情報への対応"
+      }
+    ],
+    "choiceExplanations": [
+      "流暢さは事実性を保証しません。",
+      "正解。重要な内容は一次資料や専門家によって検証します。",
+      "AI自身の自己評価だけでは十分な検証になりません。",
+      "出力を読まなければ誤りやリスクを発見できません。"
+    ],
+    "reviewStatus": "approved",
+    "reviewedAt": "2026-07-24"
   }
 ];
   window.GENAI_PASSPORT_QUESTIONS = [...(window.GENAI_PASSPORT_QUESTIONS || []), ...questions];
